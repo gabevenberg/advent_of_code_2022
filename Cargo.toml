@@ -10,5 +10,9 @@ edition = "2021"
 name="template"
 path="src/template/solve.rs"
 
+[[bin]]
+name="day01"
+path="src/day01/solve.rs"
+
 [dependencies]
 regex="1"

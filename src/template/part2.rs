@@ -1,9 +1,9 @@
 pub fn part2() -> usize {
-    return 0;
+    0
 }
 
 #[cfg(test)]
-mod day01 {
+mod tests {
     use super::*;
 
     #[test]

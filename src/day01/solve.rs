@@ -7,8 +7,8 @@ fn main() {
     let _structured_input = parse::parse(_input);
 
     println!("Part One");
-    println!("Result: {}", part1::part1());
+    println!("Result: {}", part1::part1(&_structured_input));
 
     println!("Part Two");
-    println!("Result: {}", part2::part2());
+    println!("Result: {}", part2::part2(&_structured_input));
 }
