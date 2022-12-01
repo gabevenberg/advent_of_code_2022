@@ -1,6 +1,6 @@
+mod parse;
 mod part1;
 mod part2;
-mod parse;
 
 fn main() {
     let _input = include_str!("./input.txt");

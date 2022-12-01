@@ -2,14 +2,13 @@
 pub struct Elf(pub Vec<usize>);
 
 pub fn parse(input: &str) -> Vec<Elf> {
-    input.trim()
+    input
+        .trim()
         .split("\n\n")
         .map(|group| {
             Elf(group
                 .split('\n')
-                .map(|line| {
-                    line.parse().unwrap()
-                })
+                .map(|line| line.parse().unwrap())
                 .collect())
         })
         .collect::<Vec<Elf>>()

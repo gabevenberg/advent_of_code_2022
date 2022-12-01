@@ -1,10 +1,12 @@
 use crate::parse;
 
 pub fn part2(input: &[parse::Elf]) -> usize {
-    input
+    let mut input = input
         .iter()
         .map(|elf| elf.0.iter().sum::<usize>())
-        // not sure what to do next here, how do I get the 3 max values from here?
+        .collect::<Vec<usize>>();
+    input.sort_unstable();
+    input[input.len() - 3..].iter().sum()
 }
 
 #[cfg(test)]
