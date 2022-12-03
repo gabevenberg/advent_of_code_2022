@@ -22,5 +22,9 @@ path="src/day02/solve.rs"
 name="day03"
 path="src/day03/solve.rs"
 
+[[bin]]
+name="day04"
+path="src/day04/solve.rs"
+
 [dependencies]
 regex="1"
