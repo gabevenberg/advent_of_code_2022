@@ -12,17 +12,14 @@ pub struct Strategy {
 }
 
 pub fn calc_score(input: &Strategy) -> usize{
-    //play enum has value corresponding to its score.
-    let mut score = input.you as usize;
     //an enum wins if (you-elf)%3 = 1, looses if it = 2
-    let gamestatus = (input.you as i8 - input.elf as i8).rem_euclid(3);
-    match gamestatus {
-        1 => score+=6,
-        2 => (),
-        0 => score += 3,
-        _ => panic!("gamestatus was {}!, you were {}, elf was {}", gamestatus, input.you as i8, input.elf as i8)
-    }
-    score
+    (match (input.you as i8 - input.elf as i8).rem_euclid(3) {
+        1 => 6,
+        2 => 0,
+        0 => 3,
+        _ => unreachable!("you were {}, elf was {}", input.you as i8, input.elf as i8)
+    //play enum has value corresponding to its score.
+    })+input.you as usize
 }
 
 #[cfg(test)]
