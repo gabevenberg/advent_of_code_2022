@@ -13,31 +13,20 @@ pub fn part2(input: &[Rucksack]) -> usize {
                 .iter()
                 .filter(|c| group.1.contains(c))
                 .filter(|c| group.2.contains(c))
-                .map(|x| x.to_owned())
                 .next()
                 .unwrap()
-        }).map(|c| find_char_score(&c)).sum()
+        })
+        .map(find_char_score)
+        .sum()
 }
 
 fn seperate_groups(input: &[Rucksack]) -> Vec<Group> {
     let mut output: Vec<Group> = Vec::new();
     for group in input.chunks_exact(3) {
         output.push(Group(
-            group[0]
-                .0
-                .union(&group[0].1)
-                .map(|x| x.to_owned())
-                .collect(),
-            group[1]
-                .0
-                .union(&group[1].1)
-                .map(|x| x.to_owned())
-                .collect(),
-            group[2]
-                .0
-                .union(&group[2].1)
-                .map(|x| x.to_owned())
-                .collect(),
+            group[0].0.union(&group[0].1).copied().collect(),
+            group[1].0.union(&group[1].1).copied().collect(),
+            group[2].0.union(&group[2].1).copied().collect(),
         ));
     }
     output

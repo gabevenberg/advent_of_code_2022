@@ -3,19 +3,15 @@ use crate::utilities::*;
 pub fn part1(input: &[Rucksack]) -> usize {
     input
         .iter()
-        .map(|rucksack| {
-            let intersection: Vec<&char> = rucksack.0.intersection(&rucksack.1).collect();
-            assert!(intersection.len() == 1);
-            intersection[0]
-        })
+        .map(|rucksack| rucksack.0.intersection(&rucksack.1).next().unwrap())
         .map(find_char_score)
         .sum()
 }
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
     use super::*;
+    use std::collections::HashSet;
 
     #[test]
     fn test_part1() {

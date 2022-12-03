@@ -24,7 +24,6 @@ pub fn parse(input: &str) -> Vec<Strategy> {
         .collect()
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
