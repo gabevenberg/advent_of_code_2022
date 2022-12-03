@@ -13,20 +13,34 @@ pub fn parse(input: &str) -> Vec<Rucksack> {
 }
 
 pub fn find_char_score(input: &char) -> usize {
-    static CHARS: [char; 52] = [
-        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-        's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-        'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-    ];
-    CHARS
-        .iter()
-        .position(|character| character == input)
-        .unwrap()+1
+    if input.is_uppercase() {
+        *input as usize - 38
+    } else {
+        *input as usize - 96
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_find_char_score() {
+        static CHARS: [char; 52] = [
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
+            'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+            'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y',
+            'Z',
+        ];
+
+        for character in CHARS {
+            println!("{}", character);
+            assert_eq!(
+                find_char_score(&character),
+                CHARS.iter().position(|c| *c == character).unwrap() + 1
+            )
+        }
+    }
 
     #[test]
     fn test_parse() {
