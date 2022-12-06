@@ -11,7 +11,7 @@ pub fn find_dupes_stupid<T: PartialEq>(slice: &[T]) -> bool {
     false
 }
 
-#[cfg(test)]
+/* #[cfg(test)]
 mod tests {
     use super::*;
 
@@ -20,4 +20,4 @@ mod tests {
         let input = "test";
         assert_eq!(parse(input), 0);
     }
-}
+} */
