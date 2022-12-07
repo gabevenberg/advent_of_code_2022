@@ -34,6 +34,10 @@ path="src/day05/solve.rs"
 name="day06"
 path="src/day06/solve.rs"
 
+[[bin]]
+name="day07"
+path="src/day07/solve.rs"
+
 [dependencies]
 regex="1"
 once_cell = "1.16.0"
