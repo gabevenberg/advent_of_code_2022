@@ -14,10 +14,6 @@ impl Range {
         }
     }
 
-    pub fn calc_size(&self) -> u16 {
-        self.start.abs_diff(self.end)
-    }
-
     pub fn any_overlap(&self, other: &Self) -> bool {
         self.start <= other.end && self.end >= other.start
     }
@@ -30,14 +26,6 @@ impl Range {
 
     pub fn complete_overlap(&self, other: &Self) -> bool {
         self.calc_overlap(other) == *self || self.calc_overlap(other) == *other
-    }
-
-    pub fn start(&self) -> u16 {
-        self.start
-    }
-
-    pub fn end(&self) -> u16 {
-        self.end
     }
 }
 

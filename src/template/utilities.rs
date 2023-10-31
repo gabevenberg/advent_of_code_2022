@@ -1,3 +1,4 @@
+#![allow(unused)]
 pub fn parse(input: &str) -> usize {
     unimplemented!()
 }

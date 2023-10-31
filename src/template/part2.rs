@@ -1,3 +1,4 @@
+#![allow(unused)]
 use crate::utilities::*;
 
 pub fn part2() -> usize {

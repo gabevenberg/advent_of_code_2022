@@ -1,4 +1,5 @@
-use crate::fileTree::*;
+#![allow(unused)]
+use crate::file_tree::*;
 use crate::parser::*;
 
 pub fn part1() -> usize {
