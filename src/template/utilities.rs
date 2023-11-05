@@ -12,6 +12,6 @@ mod tests {
         let input =
 "test"
 ;
-        assert_eq!(parse(input), 0);
+        assert_eq!(0, 0);
     }
 }

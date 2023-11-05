@@ -114,26 +114,26 @@ impl Node {
 }
 
 //transparent
-impl Debug for DirRef {
+impl Display for DirRef {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // f.debug_tuple("DirRef").field(self.0.borrow().deref()).finish()
         let this = self.0.borrow();
-        write!(f, "{:?}", this);
+        write!(f, "{}", this);
         Ok(())
     }
 }
 
 //transparent
-impl Debug for FileRef {
+impl Display for FileRef {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // f.debug_tuple("FileRef").field(self.0.borrow().deref()).finish()
         let this = self.0.borrow();
-        write!(f, "{:?}", this);
+        write!(f, "{}", this);
         Ok(())
     }
 }
 
-impl Debug for File {
+impl Display for File {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // f.debug_struct("File")
         //     .field("name", &self.name)
@@ -144,29 +144,21 @@ impl Debug for File {
     }
 }
 
-impl Debug for Node {
+impl Display for Node {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // match self {
-        //     Self::Dir(arg0) => f.debug_tuple("Dir").field(arg0).finish(),
-        //     Self::File(arg0) => f.debug_tuple("File").field(arg0).finish(),
-        // }
         match self {
-            Node::Dir(dir) => write!(f, "{:?}", dir),
-            Node::File(file) => write!(f, "{:?}", file),
+            Node::Dir(dir) => write!(f, "{}", dir),
+            Node::File(file) => write!(f, "{}", file),
         }
     }
 }
 
-impl Debug for Dir {
+impl Display for Dir {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // f.debug_struct("Dir")
-        //     .field("name", &self.name)
-        //     .field("children", &self.children)
-        //     .finish()
         writeln!(f, "- {} (dir)", self.name);
         for node in &self.children {
             //padding
-            for (index, line) in format!("{:#?}", node).lines().enumerate() {
+            for (index, line) in format!("{}", node).lines().enumerate() {
                 writeln!(f, "  {line}")?;
             }
         }
@@ -197,7 +189,7 @@ mod tests {
         let dlog = d.get_dir().unwrap().new_file("d.log".to_string(), 8033020);
         let dext = d.get_dir().unwrap().new_file("d.ext".to_string(), 5626152);
         let k = d.get_dir().unwrap().new_file("k".to_string(), 7214296);
-        println!("{:#?}", root);
+        println!("{}", root);
         assert_eq!(e.get_dir().unwrap().total_size(), 584);
         assert_eq!(a.get_dir().unwrap().total_size(), 94853);
         assert_eq!(d.get_dir().unwrap().total_size(), 24933642);
