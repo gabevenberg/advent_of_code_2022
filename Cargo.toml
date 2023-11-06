@@ -40,4 +40,6 @@ path="src/day07/solve.rs"
 
 [dependencies]
 regex="1"
-once_cell = "1.16.0"
+once_cell = "1.16"
+nom = "7.1"
+thiserror = "1.0"
