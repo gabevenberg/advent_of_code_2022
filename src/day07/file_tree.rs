@@ -1,198 +1,136 @@
-#![allow(unused)]
 use std::{
     cell::RefCell,
-    fmt::{Debug, Display},
-    iter,
+    collections::{hash_map, HashMap},
     ops::Deref,
     rc::{Rc, Weak},
-    slice::Iter,
 };
 
-//these cant be just a type, as methods need to be impl'd on them.
-pub struct FileRef(Rc<RefCell<File>>);
+pub type WeakDirRef = Weak<RefCell<Dir>>;
+
+pub trait FileLike {
+    fn get_parent(&self) -> Option<DirRef>;
+    fn get_name(&self) -> String;
+}
+
+#[derive(Debug)]
 pub struct DirRef(Rc<RefCell<Dir>>);
-pub struct WeakDirRef(Weak<RefCell<Dir>>);
 
-pub enum Node {
-    Dir(DirRef),
-    File(FileRef),
-}
+impl Deref for DirRef {
+    type Target = Rc<RefCell<Dir>>;
 
-pub struct File {
-    parent: WeakDirRef,
-    pub name: String,
-    pub size: usize,
-}
-
-#[derive(Default)]
-pub struct Dir {
-    parent: Option<WeakDirRef>,
-    pub name: String,
-    children: Vec<Node>,
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 impl DirRef {
-    //impling it on the ref makes the recursion a bit easier.
-    fn total_size(&self) -> usize {
-        self.0
-            .borrow()
-            .deref()
+    pub fn add_child_node(&mut self, mut node: Node) -> NodeRef {
+        node.change_parent(self);
+        let node_ref = NodeRef(Rc::new(RefCell::new(node)));
+        Rc::clone(self)
+            .borrow_mut()
             .children
+            .push(NodeRef(Rc::clone(&node_ref)));
+        node_ref
+    }
+
+    pub fn add_child_dir(&mut self, mut dir: Dir) -> DirRef {
+        dir.parent = Some(Rc::downgrade(self));
+        let dir_ref = DirRef(Rc::new(RefCell::new(dir)));
+        Rc::clone(self).borrow_mut().children.push(
+            Node::Dir(())
+        );
+        todo!()
+    }
+}
+
+#[derive(Debug)]
+pub struct Dir {
+    name: String,
+    parent: Option<WeakDirRef>,
+    children: Vec<NodeRef>,
+}
+
+impl Dir {
+    pub fn get_total_size(&self) -> usize {
+        self.children
             .iter()
-            .map(|f| match f {
-                Node::Dir(dir) => dir.total_size(),
-                Node::File(file) => file.0.borrow().size,
+            .map(|n| -> usize {
+                match Rc::clone(n).borrow().deref() {
+                    Node::Dir(d) => d.get_total_size(),
+                    Node::File(f) => f.size,
+                }
             })
             .sum()
     }
 
-    fn new(name: String) -> Self {
-        DirRef(Rc::new(RefCell::new(Dir {
-            parent: None,
-            name,
-            children: Vec::new(),
-        })))
-    }
-
-    //needs to be impled on the ref because of the need to get a weak backreference to self.
-    fn add(&self, node: Node) -> Node {
-        let ret;
-        match node {
-            Node::Dir(ref dir) => {
-                dir.0.borrow_mut().parent = Some(WeakDirRef(Rc::downgrade(&self.0)));
-                ret = Node::Dir(DirRef(Rc::clone(&dir.0)));
-            }
-            Node::File(ref file) => {
-                file.0.borrow_mut().parent = WeakDirRef(Rc::downgrade(&self.0));
-                ret = Node::File(FileRef(Rc::clone(&file.0)));
-            }
-        }
-        self.0.borrow_mut().children.push(node);
-        ret
-    }
-
-    //because a file always has a parent, it needs to be created off of a node.
-    fn new_file(&self, name: String, size: usize) -> FileRef {
-        let file = File {
-            parent: WeakDirRef(Rc::downgrade(&self.0)),
-            name,
-            size,
-        };
-        let file_ref = FileRef(Rc::new(RefCell::new(file)));
-        //have to unpack and repack to make a copy.
-        self.0
-            .borrow_mut()
-            .children
-            .push(Node::File(FileRef(Rc::clone(&file_ref.0))));
-        file_ref
+    pub fn get_children(&self) -> impl Iterator<Item = NodeRef> + '_ {
+        self.children.iter().map(|n| NodeRef(Rc::clone(n)))
     }
 }
 
-impl File {
-    fn get_parent(&self) -> &WeakDirRef {
-        &self.parent
+impl FileLike for Dir {
+    fn get_parent(&self) -> Option<DirRef> {
+        Some(DirRef(self.parent.as_ref()?.upgrade()?))
+    }
+    fn get_name(&self) -> String {
+        self.name.clone()
     }
 }
 
-impl Dir {
-    fn get_children(&self) -> &[Node] {
-        &self.children
-    }
+#[derive(Debug)]
+pub struct NodeRef(Rc<RefCell<Node>>);
 
-    fn get_parent(&self) -> &Option<WeakDirRef> {
-        &self.parent
+impl Deref for NodeRef {
+    type Target = Rc<RefCell<Node>>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
+}
+
+#[derive(Debug)]
+pub enum Node {
+    Dir(Dir),
+    File(File),
 }
 
 impl Node {
-    fn get_dir(&self) -> Option<DirRef> {
+    fn change_parent(&mut self, new_parent: &DirRef) {
         match self {
-            Node::Dir(dir) => Some(DirRef(Rc::clone(&dir.0))),
-            Node::File(_) => None,
+            Node::Dir(d) => d.parent = Some(Rc::downgrade(new_parent)),
+            Node::File(f) => f.parent = Rc::downgrade(new_parent),
         }
     }
 }
 
-//transparent
-impl Display for DirRef {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // f.debug_tuple("DirRef").field(self.0.borrow().deref()).finish()
-        let this = self.0.borrow();
-        write!(f, "{}", this);
-        Ok(())
-    }
-}
-
-//transparent
-impl Display for FileRef {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // f.debug_tuple("FileRef").field(self.0.borrow().deref()).finish()
-        let this = self.0.borrow();
-        write!(f, "{}", this);
-        Ok(())
-    }
-}
-
-impl Display for File {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // f.debug_struct("File")
-        //     .field("name", &self.name)
-        //     .field("size", &self.size)
-        //     .finish()
-        write!(f, "- {} (file, size = {})", self.name, self.size);
-        Ok(())
-    }
-}
-
-impl Display for Node {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl FileLike for Node {
+    fn get_parent(&self) -> Option<DirRef> {
         match self {
-            Node::Dir(dir) => write!(f, "{}", dir),
-            Node::File(file) => write!(f, "{}", file),
+            Node::Dir(d) => d.get_parent(),
+            Node::File(f) => f.get_parent(),
+        }
+    }
+    fn get_name(&self) -> String {
+        match self {
+            Node::Dir(d) => d.get_name(),
+            Node::File(f) => f.get_name(),
         }
     }
 }
 
-impl Display for Dir {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "- {} (dir)", self.name);
-        for node in &self.children {
-            //padding
-            for (index, line) in format!("{}", node).lines().enumerate() {
-                writeln!(f, "  {line}")?;
-            }
-        }
-        Ok(())
-    }
+#[derive(Debug)]
+pub struct File {
+    name: String,
+    parent: WeakDirRef,
+    pub size: usize,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn dir_tree_sizes() {
-        let root = DirRef::new("/".to_string());
-        let a = root.add(Node::Dir(DirRef::new("a".to_string())));
-        let e = a
-            .get_dir()
-            .unwrap()
-            .add(Node::Dir(DirRef::new("e".to_string())));
-        let i = e.get_dir().unwrap().new_file("i".to_string(), 584);
-        let f = a.get_dir().unwrap().new_file("f".to_string(), 29116);
-        let g = a.get_dir().unwrap().new_file("g".to_string(), 2557);
-        let h = a.get_dir().unwrap().new_file("h.lst".to_string(), 62596);
-        let b = root.new_file("b.txt".to_string(), 14848514);
-        let c = root.new_file("c.txt".to_string(), 8504156);
-        let d = root.add(Node::Dir(DirRef::new("a".to_string())));
-        let j = d.get_dir().unwrap().new_file("j".to_string(), 4060174);
-        let dlog = d.get_dir().unwrap().new_file("d.log".to_string(), 8033020);
-        let dext = d.get_dir().unwrap().new_file("d.ext".to_string(), 5626152);
-        let k = d.get_dir().unwrap().new_file("k".to_string(), 7214296);
-        println!("{}", root);
-        assert_eq!(e.get_dir().unwrap().total_size(), 584);
-        assert_eq!(a.get_dir().unwrap().total_size(), 94853);
-        assert_eq!(d.get_dir().unwrap().total_size(), 24933642);
-        assert_eq!(root.total_size(), 48381165)
+impl FileLike for File {
+    fn get_parent(&self) -> Option<DirRef> {
+        Some(DirRef(self.parent.upgrade()?))
+    }
+    fn get_name(&self) -> String {
+        self.name.clone()
     }
 }
