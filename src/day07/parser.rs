@@ -73,11 +73,11 @@ fn parse_ls(lines: &mut std::iter::Peekable<std::str::Lines<'_>>) -> Vec<LsEntry
     ret
 }
 
-pub fn parse(input: &str) -> Dir {
+pub fn parse(input: &str) -> Node {
     unimplemented!()
 }
 
-pub fn commands_to_tree(input: Vec<Command>) -> Dir {
+pub fn commands_to_tree(input: Vec<Command>) -> Node {
     unimplemented!()
 }
 

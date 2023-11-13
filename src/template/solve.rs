@@ -1,4 +1,4 @@
-#![allow(unused)]
+#![allow(dead_code)]
 mod part1;
 mod part2;
 mod utilities;
