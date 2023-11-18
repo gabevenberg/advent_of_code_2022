@@ -1,4 +1,7 @@
 #![allow(unused)]
+use std::ops::Deref;
+use std::{cell::RefCell, rc::Rc};
+
 use crate::file_tree::*;
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -77,8 +80,29 @@ pub fn parse(input: &str) -> Node {
     unimplemented!()
 }
 
-pub fn commands_to_tree(input: Vec<Command>) -> Node {
-    unimplemented!()
+pub fn commands_to_tree(input: Vec<Command>) -> NodeRef {
+    let root = NodeRef::new_dir("/".to_string());
+    let mut cursor = NodeRef(Rc::clone(&root));
+    for command in input {
+        match command {
+            Command::CdRoot => cursor = NodeRef(Rc::clone(&root)),
+            Command::CdUp => cursor = Rc::clone(cursor.deref()).borrow().get_parent().unwrap(),
+            Command::Cd(name) => cursor = cursor.add_dir(name).unwrap(),
+            Command::Ls(ls) => {
+                for entry in ls {
+                    match entry {
+                        LsEntry::Dir(d) => {
+                            //dirs dont exist until you cd into them.
+                        }
+                        LsEntry::File(f) => {
+                            cursor.add_file(f.name, f.size);
+                        }
+                    };
+                }
+            }
+        }
+    }
+    root
 }
 
 #[cfg(test)]
@@ -172,5 +196,68 @@ mod tests {
                 ]),
             ]
         )
+    }
+    #[test]
+    fn test_commands_to_tree() {
+        let input = vec![
+            Command::CdRoot,
+            Command::Ls(vec![
+                LsEntry::Dir(String::from("a")),
+                LsEntry::File(ParseFile {
+                    size: 14848514,
+                    name: String::from("b.txt"),
+                }),
+                LsEntry::File(ParseFile {
+                    size: 8504156,
+                    name: String::from("c.dat"),
+                }),
+                LsEntry::Dir(String::from("d")),
+            ]),
+            Command::Cd(String::from("a")),
+            Command::Ls(vec![
+                LsEntry::Dir(String::from("e")),
+                LsEntry::File(ParseFile {
+                    size: 29116,
+                    name: String::from("f"),
+                }),
+                LsEntry::File(ParseFile {
+                    size: 2557,
+                    name: String::from("g"),
+                }),
+                LsEntry::File(ParseFile {
+                    size: 62596,
+                    name: String::from("h.lst"),
+                }),
+            ]),
+            Command::Cd(String::from("e")),
+            Command::Ls(vec![LsEntry::File(ParseFile {
+                size: 584,
+                name: String::from("i"),
+            })]),
+            Command::CdUp,
+            Command::CdUp,
+            Command::Cd(String::from("d")),
+            Command::Ls(vec![
+                LsEntry::File(ParseFile {
+                    size: 4060174,
+                    name: String::from("j"),
+                }),
+                LsEntry::File(ParseFile {
+                    size: 8033020,
+                    name: String::from("d.log"),
+                }),
+                LsEntry::File(ParseFile {
+                    size: 5626152,
+                    name: String::from("d.ext"),
+                }),
+                LsEntry::File(ParseFile {
+                    size: 7214296,
+                    name: String::from("k"),
+                }),
+            ]),
+        ];
+        let tree = commands_to_tree(input);
+        println!("{}", tree);
+        assert_eq!(Rc::clone(tree.deref()).borrow().get_total_size(), 48381165)
     }
 }
