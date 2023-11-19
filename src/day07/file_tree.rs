@@ -44,12 +44,6 @@ impl From<NodeRef> for Rc<RefCell<Node>> {
     }
 }
 
-impl Display for NodeRef {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.borrow())
-    }
-}
-
 impl NodeRef {
     pub fn add_node(&mut self, mut node: Node) -> Result<NodeRef, FileTreeError> {
         node.set_parent(self);
@@ -183,16 +177,22 @@ impl Node {
     }
 }
 
+#[derive(Debug)]
+enum Contents {
+    Size(usize),
+    Children(Vec<NodeRef>),
+}
+
+impl Display for NodeRef {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.borrow())
+    }
+}
+
 impl Display for Node {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "- {} {}", self.name, self.contents)
     }
-}
-
-#[derive(Debug)]
-pub enum Contents {
-    Size(usize),
-    Children(Vec<NodeRef>),
 }
 
 impl Display for Contents {

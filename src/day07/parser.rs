@@ -1,6 +1,5 @@
-#![allow(unused)]
 use std::ops::Deref;
-use std::{cell::RefCell, rc::Rc};
+use std::rc::Rc;
 
 use crate::file_tree::*;
 use once_cell::sync::Lazy;
@@ -66,7 +65,7 @@ fn parse_ls(lines: &mut std::iter::Peekable<std::str::Lines<'_>>) -> Vec<LsEntry
             .unwrap_or_else(|| panic!("invalid line {}", line));
         ret.push(match &captures[1] {
             "dir" => LsEntry::Dir(captures[2].to_string()),
-            s => LsEntry::File(ParseFile {
+            _ => LsEntry::File(ParseFile {
                 size: str::parse(&captures[1]).unwrap_or_else(|_| panic!("invalid line {}", line)),
                 name: captures[2].to_string(),
             }),
@@ -76,8 +75,8 @@ fn parse_ls(lines: &mut std::iter::Peekable<std::str::Lines<'_>>) -> Vec<LsEntry
     ret
 }
 
-pub fn parse(input: &str) -> Node {
-    unimplemented!()
+pub fn parse(input: &str) -> NodeRef {
+    commands_to_tree(parse_to_commands(input))
 }
 
 pub fn commands_to_tree(input: Vec<Command>) -> NodeRef {
@@ -91,11 +90,11 @@ pub fn commands_to_tree(input: Vec<Command>) -> NodeRef {
             Command::Ls(ls) => {
                 for entry in ls {
                     match entry {
-                        LsEntry::Dir(d) => {
+                        LsEntry::Dir(_) => {
                             //dirs dont exist until you cd into them.
                         }
                         LsEntry::File(f) => {
-                            cursor.add_file(f.name, f.size);
+                            cursor.add_file(f.name, f.size).unwrap();
                         }
                     };
                 }
