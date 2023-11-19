@@ -1,7 +1,5 @@
 #![allow(unused)]
-use crate::utilities::*;
-
-type StructuredInput = Vec<Vec<u8>>;
+use crate::{utilities::*, StructuredInput};
 
 pub fn part1(input: &StructuredInput) -> usize {
     let mut acc: usize = 0;
