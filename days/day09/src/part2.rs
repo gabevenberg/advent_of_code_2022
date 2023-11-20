@@ -1,8 +1,18 @@
-//TODO:
-#![allow(unused)]
+use std::collections::HashSet;
 
-pub fn part2() -> usize {
-    unimplemented!()
+use aoc_libs::points::Point;
+
+use crate::{rope::Rope, parse::Direction};
+
+pub fn part2(input: &Vec<Direction>) -> usize {
+    let mut visited: HashSet<Point> = HashSet::new();
+    let mut rope: Rope<10> = Rope::new();
+    for direction in input {
+        visited.insert(*rope.get_tail_pos());
+        rope.update_rope(direction);
+        println!("{}", rope)
+    }
+    visited.len()
 }
 
 #[cfg(test)]
