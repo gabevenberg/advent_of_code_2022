@@ -1,5 +1,4 @@
-#![allow(unused)]
-use crate::{utilities::*, StructuredInput};
+use crate::StructuredInput;
 
 pub fn part2(input: &StructuredInput) -> usize {
     let mut max: usize = 0;

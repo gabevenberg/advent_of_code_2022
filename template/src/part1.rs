@@ -1,7 +1,8 @@
+//TODO:
 #![allow(unused)]
 use crate::utilities::*;
 
-pub fn part2() -> usize {
+pub fn part1() -> usize {
     unimplemented!()
 }
 
@@ -10,7 +11,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_part2() {
+    fn test_part1() {
         assert_eq!(0, 0);
     }
 }

@@ -1,7 +1,3 @@
-/* pub fn parse(input: &str) -> usize {
-    unimplemented!()
-} */
-
 pub fn find_dupes_stupid<T: PartialEq>(slice: &[T]) -> bool {
     for i in 1..slice.len() {
         if slice[i..].contains(&slice[i - 1]) {
