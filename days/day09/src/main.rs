@@ -12,6 +12,6 @@ fn main() {
     println!("Part One");
     println!("Result: {}", part1::part1(&structured_input));
 
-    // println!("Part Two");
-    // println!("Result: {}", part2::part2(&structured_input));
+    println!("Part Two");
+    println!("Result: {}", part2::part2(&structured_input));
 }

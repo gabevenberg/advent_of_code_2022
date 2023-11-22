@@ -1,3 +1,6 @@
+use once_cell::sync::Lazy;
+use regex::Regex;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Direction {
     Up,
@@ -6,18 +9,25 @@ pub enum Direction {
     Left,
 }
 
+static PARSE_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"^([URDL]) (\d+)$").unwrap());
+
 pub fn parse(input: &str) -> Vec<Direction> {
     let mut ret = Vec::new();
     for line in input.lines() {
-        let mut chars = line.chars();
-        let dir = match chars.next().unwrap() {
-            'U' => Direction::Up,
-            'R' => Direction::Right,
-            'D' => Direction::Down,
-            'L' => Direction::Left,
+        let captures = PARSE_REGEX
+            .captures(line)
+            .unwrap_or_else(|| panic!("invalid line {}", line));
+        let dir = match &captures[1] {
+            "U" => Direction::Up,
+            "R" => Direction::Right,
+            "D" => Direction::Down,
+            "L" => Direction::Left,
             _ => panic!("invalid direction char"),
         };
-        for _ in 0..chars.nth(1).unwrap().to_digit(10).unwrap() {
+        for _ in 0..captures[2]
+            .parse()
+            .unwrap_or_else(|_| panic!("invalid line {}", line))
+        {
             ret.push(dir)
         }
     }

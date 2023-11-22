@@ -23,14 +23,12 @@ impl<const L: usize> Rope<L> {
             Direction::Down => Point { x: 0, y: -1 },
             Direction::Left => Point { x: -1, y: 0 },
         };
-        println!("direction is {:?}", direction);
         for segment in 1..self.segments.len() {
             self.segments[segment] += Rope::<L>::update_single_segment_pair(
                 &self.segments[segment - 1],
                 &self.segments[segment],
             )
         }
-        println!("{}", self);
     }
 
     pub fn get_tail_pos(&self) -> &Point {
@@ -77,7 +75,7 @@ impl<const L: usize> Display for Rope<{ L }> {
         }
 
         for segment in self.segments.iter().skip(1) {
-            let delta =  *segment-self.segments[0];
+            let delta = *segment - self.segments[0];
             let upoint = delta.to_upoint(&zero_point).unwrap();
             grid[upoint.y][upoint.x] = 'T'
         }
@@ -138,9 +136,11 @@ mod tests {
         let mut visited: HashSet<Point> = HashSet::new();
         let mut rope: Rope<2> = Rope::new();
         visited.insert(*rope.get_tail_pos());
+        println!("{}", rope);
         for direction in input {
             rope.update_rope(&direction);
             visited.insert(*rope.get_tail_pos());
+            println!("{}", rope);
         }
         // let mut graph = [
         //     ['.', '.', '.', '.', '.', '.'],
