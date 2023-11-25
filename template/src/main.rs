@@ -1,12 +1,10 @@
-//TODO:
-#![allow(dead_code)]
 mod part1;
 mod part2;
-mod utilities;
+mod parse;
 
 fn main() {
     let input = include_str!("./input.txt");
-    let structured_input = utilities::parse(input);
+    let structured_input = parse::parse(input);
 
     println!("Part One");
     println!("Result: {}", part1::part1());

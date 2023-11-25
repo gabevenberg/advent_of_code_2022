@@ -1,5 +1,3 @@
-//TODO:
-#![allow(unused)]
 pub fn parse(input: &str) -> usize {
     unimplemented!()
 }
@@ -10,9 +8,7 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        let input =
-"test"
-;
+        let input = concat!();
         assert_eq!(0, 0);
     }
 }
